@@ -1,0 +1,42 @@
+{"menu_options":["Operator", 
+"Routecard", 
+"Downtime"], 
+"submenu_options":{"Operator":[], 
+"Routecard":[], 
+"Downtime":["Men", 
+"Machine", 
+"Method", 
+"Measurement", 
+"Material", 
+"Others"]}, 
+"subsubmenu_options":{"Men":[
+"lunch break",
+"meeting",
+"operator NA",
+"scrap cleaning",
+"tea break"], 
+"Machine":[
+"machine accident",
+"machine alarm",
+"machine breakdown",
+"preventive maintenance",
+"setting"], 
+"Material":[
+"instrument NA",
+"material NA",
+"material loading and unloading",
+"material problem",
+"tool trial"], 
+"Others":[
+"environmental effects",
+"power not available"], 
+"Measurement":[
+"first piece inspection",
+"part size adjustment",
+"quality check",
+"setup approval",
+"tooling problem"], 
+"Method":[
+"chuck adjust",
+"fixture calibration change"]
+}}
