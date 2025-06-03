@@ -1,31 +1,31 @@
-import os , sys , io
+import os
+import sys
+import io
 import time
 import json
 import _thread
 import M5
 from M5 import *
-from hardware import Rotary , RFID
 from hardware import *
 # Global variables
-filler = 0x000000
 menu_options = []
 submenu_options = {}
 subsubmenu_options = {}
 submenu_images = {
-    'Men': 'men.png',
-    'Machine': 'machine1.png',
-    'Method': 'method.png',
-    'Measurement': 'measurement.png',
-    'Material': 'material1.png',
-    'Others': 'mt.png',
+    'Men': 'men3j.jpg',
+    'Machine': 'machine1j.jpg',
+    'Method': 'methodj.jpg',
+    'Measurement': 'measurementj.jpg',
+    'Material': 'material1j.jpg',
+    'Others': 'others2j.jpg',
 }
 menu_images = {
-    'Operator': 'Operator.png',
-    'Downtime': 'idle.png',
-    'Performance': 'oee.png',
-    'Time': 'clock.png',
-    'Home': 'home1.png',
-    'Routecard':'route.png'
+    'Operator': 'Operator.bmp',
+    'Downtime': 'idlej.jpg',
+    'Performance': 'oee.bmp',
+    'Time': 'clock.jpg',
+    'Home': 'home1.jpg',
+    'Routecard':'route.bmp'
 }
 rfid = None  # This should be initialized with your RFID object
 timeout_flag = False  # Flag to indicate timeout
@@ -122,7 +122,7 @@ def variable_init():
             print(f"Error decoding JSON: {e}")
 def update_menu():
     # """Update the menu display based on the current menu selection."""
-    global current_menu, rotaryLR, label1, image0, in_submenu, current_submenu, in_subsubmenu,filler
+    global current_menu, rotaryLR, label1, image0, in_submenu, current_submenu, in_subsubmenu
     if in_subsubmenu:
         # Handle subsubmenu display
         handle_subsubmenu()
@@ -131,9 +131,7 @@ def update_menu():
         handle_submenu()
     else:
         # Adjust menu index based on rotary encoder input
-        print(rotaryLR)
         current_menu += rotaryLR
-        print(current_menu)
         if current_menu >= len(menu_options):
             current_menu = 0
         elif current_menu < 0:
@@ -144,14 +142,15 @@ def update_menu():
         # Update image and label text based on selected menu option
         menu_name = menu_options[current_menu]
         if menu_name in menu_images:
+            Widgets.fillScreen(0x000000)
             image0.setImage("res/img/" + menu_images[menu_name])
         else:
-            image0.setImage("res/img/mt.png")
+            image0.setImage("res/img/mt.jpg")
         if menu_name == "Performance":
-          label_print(2,80,1.5,0xFFFFFF,filler,menu_name,1)
+          label_print(2,80,1.5,0xFFFFFF,0x000000,menu_name,1)
         else:
-          rect1 = Widgets.Rectangle(0, 78, 240, 30, filler, filler)
-          label_print(32,80,1.5,0xFFFFFF,filler,menu_name,1)
+          rect1 = Widgets.Rectangle(0, 78, 240, 30, 0x0000000, 0x000000)
+          label_print(32,80,1.5,0xFFFFFF,0x000000,menu_name,1)
 def show_submenu(menu_name):
     # """Display the submenu for the given menu option."""
     global in_submenu, submenu_images, current_submenu, submenu_options, image0, label1, in_subsubmenu
@@ -163,14 +162,15 @@ def show_submenu(menu_name):
     # Update image and label text based on selected submenu option
     submenu_name = submenu_options[menu_name][current_submenu]
     if submenu_name in submenu_images:
+        Widgets.fillScreen(0x000000)
         image1.setImage("res/img/" + submenu_images[submenu_name])
     else:
-        image1.setImage("res/img/mt.png")
+        image1.setImage("res/img/mt.jpg")
     
-    label_print(79, 120, 1.5, 0xFFFFFF, filler, submenu_name,2)
+    label_print(79, 120, 1.5, 0xFFFFFF, 0x000000, submenu_name,2)
 def handle_submenu():
     """Handle the display and navigation within the current submenu."""
-    global current_submenu,filler,init, submenu_options, rotaryLR, label1, menu_options, current_menu, in_subsubmenu
+    global current_submenu,init, submenu_options, rotaryLR, label1, menu_options, current_menu, in_subsubmenu
     
     menu_name = menu_options[current_menu]
     if in_subsubmenu:
@@ -185,18 +185,16 @@ def handle_submenu():
             current_submenu = len(submenu_options[menu_name]) - 1
         elif current_submenu <0 and init:
             current_submenu = 0
-        label1.setText("                                   ")
-        screenclear()
         # Update display for submenu
         submenu_name = submenu_options[menu_name][current_submenu]
         if submenu_name in submenu_images:
             image1.setImage("res/img/" + submenu_images[submenu_name])
         else:
-            image1.setImage("res/img/mt.png")
-        label_print(79, 120, 1.5, 0xFFFFFF, filler, submenu_name,2)
+            image1.setImage("res/img/mt.jpg")
+        label_print(79, 120, 1.5, 0xFFFFFF, 0x000000, submenu_name,2)
 def handle_subsubmenu():
     """Handle the display and navigation within the current subsubmenu."""
-    global current_subsubmenu,filler, init,subsubmenu_options, rotaryLR, label1, submenu_options, current_submenu, in_subsubmenu
+    global current_subsubmenu, init,subsubmenu_options, rotaryLR, label1, submenu_options, current_submenu, in_subsubmenu
     
     submenu_name = submenu_options[menu_options[current_menu]][current_submenu]
     # Adjust subsubmenu index based on rotary encoder input
@@ -205,17 +203,16 @@ def handle_subsubmenu():
         current_subsubmenu = 0
     elif current_subsubmenu < 0:
         current_subsubmenu = len(subsubmenu_options[submenu_name]) - 1
-    label1.setText("                                   ")
-    screenclear()
+    
     # Update display for subsubmenu
     # print(submenu_name)
-    label_print(79, 120, 1.5, 0xFFFFFF, filler, submenu_name,2)
-    label_print(79, 120, 1.5, 0xFFFFFF, filler,subsubmenu_options[submenu_name][current_subsubmenu],2)
+    label_print(79, 120, 1.5, 0xFFFFFF, 0x000000, submenu_name,2)
+    label_print(79, 120, 1.5, 0xFFFFFF, 0x000000,subsubmenu_options[submenu_name][current_subsubmenu],2)
     if subsubmenu_options[submenu_name][current_subsubmenu] == "Scan":
         print("select for scaning")
     else:
-        Widgets.fillScreen(filler)
-        label_print(79, 120, 1.5, 0xFFFFFF, filler,subsubmenu_options[submenu_name][current_subsubmenu],2)
+        Widgets.fillScreen(0x000000)
+        label_print(79, 120, 1.5, 0xFFFFFF, 0x000000,subsubmenu_options[submenu_name][current_subsubmenu],2)
         
 def open_menu():
     """Open the current menu option and update display accordingly."""
@@ -236,9 +233,9 @@ def open_menu():
             show_submenu(menu_options[current_menu])
     else:
         if menu_options[current_menu] == 'Performance':
-            Widgets.fillScreen(filler)
-            circle0 = Widgets.Circle(120, 120, 105, 0xffffff, 0xc76600)
-            rect1 = Widgets.Rectangle(0, 98, 240, 30, filler, filler)
+            Widgets.fillScreen(0x000000)
+            circle0 = Widgets.Circle(119, 111, 101, 0xffffff, 0xc76600)
+            rect1 = Widgets.Rectangle(17, 98, 206, 30, 0x0000000, 0x000000)
             print("Performance")
             Performancein = input("Performance:")
             
@@ -247,16 +244,16 @@ def open_menu():
             if len(Performancein) > 2:
                 Performancesplit = Performancein.split('-')
             # print(Performancesplit)
-                label1 = Widgets.Label("A : "+Performancesplit[0], 80, 46, 1.5, 0x000000, 0xc76600, Widgets.FONTS.DejaVu24)
-                label2 = Widgets.Label("T : "+Performancesplit[1], 80, 146, 1.5, 0x000000, 0xc76600, Widgets.FONTS.DejaVu24)
+                label1 = Widgets.Label("A : "+Performancesplit[0], 60, 46, 1.5, 0x000000, 0xc76600, Widgets.FONTS.DejaVu24)
+                label2 = Widgets.Label("T : "+Performancesplit[1], 60, 146, 1.5, 0x000000, 0xc76600, Widgets.FONTS.DejaVu24)
         
         elif menu_options[current_menu] == 'Operator':
             screenclear()
-            image1.setImage("res/img/rfid1.png")
+            image1.setImage("res/img/rfid1.bmp")
             rfid_scanner("OP")
         elif menu_options[current_menu] == 'Routecard':
             screenclear()
-            image1.setImage("res/img/rfid1.png")
+            image1.setImage("res/img/rfid1.bmp")
             rfid_scanner("RC")        
         elif menu_options[current_menu] == 'Time':
             label1.setText(str(time.localtime()))
@@ -275,7 +272,7 @@ def return_to_menu():
     Speaker.tone(1500, 50)
     time.sleep(1.5)
     Speaker.tone(1500, 50)
-    Widgets.fillScreen(filler)
+    Widgets.fillScreen(0x000000)
     in_submenu = False
     in_subsubmenu = False
     submenu_selected_flag = False
@@ -289,7 +286,7 @@ def return_to_home():
     Speaker.tone(1500, 50)
     time.sleep(1.5)
     Speaker.tone(1500, 50)
-    Widgets.fillScreen(filler)
+    Widgets.fillScreen(0x000000)
     rotary_enabled = True
     in_subsubmenu = False
     in_submenu = False
@@ -307,8 +304,6 @@ def rotary_check():
     if not rotary_enabled:
         return  # Ignore rotary input if it's disabled
     rotaryID = rotary.get_rotary_value()
-    # print(rotaryID)
-    # print(rotaryID_last)
     if rotaryID != rotaryID_last:
         rotaryLR = 1 if rotaryID > rotaryID_last else -1
         Speaker.tone(1500, 50)
@@ -319,18 +314,15 @@ def rotary_check():
             handle_submenu()
         else:
             update_ui()
-    else:
-      rotaryLR = 0
 def screenclear():
     """Clear the screen."""
     global label1, image0, image1
-    Widgets.fillScreen(filler)
     if label1:
         label1.setText("")
     if image0:
-        image0.setImage("res/img/mt.png")
+        image0.setImage("res/img/mt.jpg")
     if image1:
-        image1.setImage("res/img/mt.png")
+        image1.setImage("res/img/mt.jpg")
 def rfid_scanner(stage):
     global read_data, label1, timeout_flag, rotary_enabled
     read_data = None
@@ -343,7 +335,7 @@ def rfid_scanner(stage):
         read_data = read_from_rfid()
         time.sleep(0.5)  # Add a delay to avoid rapid loop iterations
     # Clear screen after scanning
-    Widgets.fillScreen(filler)
+    Widgets.fillScreen(0x000000)
     if read_data is not None:
         op_name = "".join(chr(i) for i in read_data)
         split_state = op_name.split('-')
@@ -353,18 +345,18 @@ def rfid_scanner(stage):
             Widgets.fillScreen(0x49ff42)
             label_print(79, 120, 1.5, 0xFFFFFF, 0x49ff42, split_state[1], 3)
             print("".join(chr(i) for i in read_data))
-            image3 = Widgets.Image("res/img/correct.png", 79, 155)
+            image3 = Widgets.Image("res/img/correct.bmp", 79, 155)
         else:
             Widgets.fillScreen(0xff0000)
             label1 = Widgets.Label("Please scan", 20, 60, 1.5, 0xffffff, 0xff0000, Widgets.FONTS.DejaVu24)
             label1 = Widgets.Label("Correct ID", 20, 100, 1.5, 0xffffff, 0xff0000, Widgets.FONTS.DejaVu24)
-            image3 = Widgets.Image("res/img/Incorrect.png", 79, 148)
+            image3 = Widgets.Image("res/img/Incorrect.bmp", 79, 148)
     else:
         # Handle case where no RFID data is obtained
         Widgets.fillScreen(0xff0000)
         print("Timeout")
         label1 = Widgets.Label("Timeout", 30, 60, 1.5, 0x000000, 0xff0000, Widgets.FONTS.DejaVu24)
-        image3 = Widgets.Image("res/img/timeout.png", 79, 133)
+        image3 = Widgets.Image("res/img/timeout.bmp", 79, 133)
     # Re-enable rotary input after RFID scan is complete
     Speaker.tone(3000, 500)
     time.sleep(2)
@@ -414,11 +406,11 @@ def label_print(x,y,size,tx,bg,text,align):
         if len(spstr) == 1:
           label_align(spstr[0],bg,tx,123)
         elif len(spstr) == 2:
-          Widgets.fillScreen(filler)
+          Widgets.fillScreen(0x000000)
           label_align(spstr[0],bg,tx,60)
           label_align(spstr[1],bg,tx,144)
         elif len(spstr) == 3:
-          Widgets.fillScreen(filler)
+          Widgets.fillScreen(0x000000)
           label_align(spstr[0],bg,tx,33)
           label_align(spstr[1],bg,tx,110)
           label_align(spstr[2],bg,tx,186)
@@ -444,7 +436,7 @@ def label_align(labelstring,bgcolor,txtcolor,y):
       label1 = Widgets.Label("", x ,y, 2, txtcolor, bgcolor, Widgets.FONTS.DejaVu18)
       label1.setText(labelstring)
 def input_check():
-    global filler,rotary,in_subsubmenu,rotary_enabled,init, in_submenu, current_menu, current_submenu, current_subsubmenu
+    global in_subsubmenu,rotary_enabled,init, in_submenu, current_menu, current_submenu, current_subsubmenu
     x = input()
     if x == '0':
         # rotary.reset_rotary_value()
@@ -466,7 +458,7 @@ def input_check():
                 update_ui()
                 # rotary_check()
             elif subsubmenu_options[submenu_name][current_subsubmenu] == "Scan":
-                image1.setImage("res/img/rfid1.png")
+                image1.setImage("res/img/rfid1.bmp")
                 rfid_scanner(submenu_name)
             else:
                 return_to_home()  # Return to the home menu if in a subsubmenu
@@ -477,33 +469,23 @@ def input_check():
                 current_subsubmenu = 0
                 screenclear()
                 image0.setVisible(False)
-                label_print(79, 120, 1.5, 0xFFFFFF, filler, subsubmenu_options[submenu_name][current_subsubmenu], 2)
+                label_print(79, 120, 1.5, 0xFFFFFF, 0x000000, subsubmenu_options[submenu_name][current_subsubmenu], 2)
             else:
                 return_to_home()  # Return to the home menu if no subsubmenu available
         else:
             open_menu()
-    elif x == "status:3":
-        filler = 0x0b6614
-        rotaryLR = 0
-        update_ui()
-    elif x == "status:1":
-        filler = 0xaab70d
-        update_ui()
-    elif x == "status:100":
-        filler = 0x8e1515
-        update_ui()
     elif x == "Performance":
-        Widgets.fillScreen(filler)
+        Widgets.fillScreen(0x000000)
         circle0 = Widgets.Circle(119, 111, 101, 0xffffff, 0xc76600)
-        rect1 = Widgets.Rectangle(17, 98, 206, 30, filler, filler)
+        rect1 = Widgets.Rectangle(17, 98, 206, 30, 0x0000000, 0x000000)
         print("Performance:")
         Performancein = input("Performance:")
         while len(Performancein) <2:
           Performancein = input("Performance:")
         if len(Performancein) > 2: 
           Performancesplit = Performancein.split('-')
-          label1 = Widgets.Label("A : "+Performancesplit[0], 60, 46, 1.5, 0x000000, filler, Widgets.FONTS.DejaVu24)
-          label2 = Widgets.Label("T : "+Performancesplit[1], 60, 146, 1.5, 0x000000, filler, Widgets.FONTS.DejaVu24)
+          label1 = Widgets.Label("A : "+Performancesplit[0], 60, 46, 1.5, 0x000000, 0xc76600, Widgets.FONTS.DejaVu24)
+          label2 = Widgets.Label("T : "+Performancesplit[1], 60, 146, 1.5, 0x000000, 0xc76600, Widgets.FONTS.DejaVu24)
 def input_thread():
     """Thread function to check for input."""
     global rotary_enabled
@@ -512,15 +494,14 @@ def input_thread():
         time.sleep(0.1)  # Adjust the sleep time as needed for your application
 def setup():
     """Initialize the M5 device and configure UI components."""
-    global label1, image0, image1, rotary, rfid ,filler
+    global label1, image0, image1, rotary, rfid
     M5.begin()
-    filler = 0x000000
-    Widgets.fillScreen(filler)
+    Widgets.fillScreen(0x000000)
     Widgets.setRotation(1)
     
     label1 = Widgets.Label("", 100, 123, 2, 0xffffff, 0x000000, Widgets.FONTS.DejaVu18)
-    image0 = Widgets.Image("res/img/mt.png", 63, 119)
-    image1 = Widgets.Image("res/img/yantra_logo1.png", 9, -1)
+    image0 = Widgets.Image("res/img/mt.jpg", 63, 119)
+    image1 = Widgets.Image("res/img/yantra_logo1j.jpg", 9, -1)
     
     # BtnA.setCallback(type=BtnA.CB_TYPE.WAS_PRESSED, cb=btnA_wasPressed_event)
     # _thread.start_new_thread(input_thread, ())
@@ -530,7 +511,7 @@ def setup():
     Speaker.setVolumePercentage(1)
     _thread.start_new_thread(input_thread, ())
     image0.setVisible(True)
-    image0.setImage("res/img/mt.png")
+    image0.setImage("res/img/mt.jpg")
     label1.setVisible(False)
     update_ui()
 def loop():
@@ -550,3 +531,4 @@ if __name__ == '__main__':
             print_error_msg(e)
         except ImportError:
             print("Please update to the latest firmware")
+
