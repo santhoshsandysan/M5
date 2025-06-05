@@ -1,0 +1,169 @@
+import os , sys , io
+import time
+import json
+import _thread
+import M5
+from M5 import *
+from hardware import Rotary , RFID
+from hardware import *
+# Global variables
+filler = 0x000000
+menu_options = []
+submenu_options = {}
+subsubmenu_options = {}
+submenu_images = {
+    'Men': 'men.png',
+    'Machine': 'machine1.png',
+    'Method': 'method.png',
+    'Measurement': 'measurement.png',
+    'Material': 'material1.png',
+    'Others': 'mt.png',
+}
+menu_images = {
+    'Operator': 'Operator.png',
+    'Downtime': 'idle.png',
+    'Performance': 'oee.png',
+    'Time': 'clock.png',
+    'Home': 'home1.png',
+    'Routecard':'route.png'
+}
+rfid = None  # This should be initialized with your RFID object
+timeout_flag = False  # Flag to indicate timeout
+rotary_enabled = True
+timeout_time = 30
+current_menu = 0
+current_submenu = 0
+current_subsubmenu = 0
+rotaryLR = 0
+rotaryID = 0
+rotaryID_last = 0
+label1 = None
+image0 = None
+image1 = None
+in_submenu = False
+in_subsubmenu = False
+submenu_selected_flag = False
+
+
+def screenclear():
+    """Clear the screen."""
+    global label1, image0, image1
+    Widgets.fillScreen(filler)
+    if label1:
+        label1.setText("")
+    if image0:
+        image0.setImage("res/img/mt.png")
+    if image1:
+        image1.setImage("res/img/mt.png")
+
+
+def label_print(x,y,size,tx,bg,text,align):
+    global label1
+    label1.setVisible(True)
+    label1 = Widgets.Label("", x, y, size, tx, bg, Widgets.FONTS.DejaVu24)
+    if align == 1:
+        label1.setText(text)
+        label1 = Widgets.Label("", 0, y, size, tx, bg, Widgets.FONTS.DejaVu24)
+    if align == 2:
+        spstr = text.split(" ")
+        lines = len(spstr)
+        # Starting y (top margin)
+        if lines == 1:
+          start_y = 110
+        elif lines == 2:
+          start_y = 60
+        else:
+          start_y = 50
+        # Vertical spacing between lines (adjust as needed)
+        line_height = 60
+        Widgets.fillScreen(filler)
+        for i, word in enumerate(spstr):
+            label_align(word, bg, tx, start_y + i * line_height)
+       
+    elif align == 3:
+        label1 = Widgets.Label("Scanned ID", 20, 60, size, tx, bg, Widgets.FONTS.DejaVu24)
+        label1 = Widgets.Label(text, 80, y, size, tx, bg, Widgets.FONTS.DejaVu24)
+
+def label_align(labelstring, bgcolor, txtcolor, y):
+    global label1
+
+    # Clear the area first
+    rect0 = Widgets.Rectangle(0, y - 8, 240, 47, bgcolor, bgcolor)
+    rect0.setVisible(True)
+    print("Y is :"+str(y))
+
+    # Determine the width to use for centering based on y-position
+    # if y == 60 :
+    #     screen_width = 180
+    # elif y == 120:
+    #     screen_width = 180
+    # else:
+    screen_width = 240
+
+    # Estimate text length
+    text_len = len(labelstring)
+
+    # Choose font and character width estimate
+    if text_len <= 9:
+        font = Widgets.FONTS.DejaVu18
+        char_width = 18
+    elif text_len <= 15:
+        font = Widgets.FONTS.DejaVu12
+        char_width = 12
+    else:
+        font = Widgets.FONTS.DejaVu9
+        char_width = 9
+
+    # Compute total text width in pixels
+    text_width = text_len * char_width
+    if text_width <= 240:
+      x = max(0, (screen_width - text_width) // 2)
+      if text_width+x > 240:
+        x = 0
+    else:
+      x = 10
+    print(f"Text length: {text_len} | Estimated width: {text_width} | X position: {x} | Y: {y}")
+
+    # Create centered label
+    label1 = Widgets.Label("", x, y, 2, txtcolor, bgcolor, font)
+    label1.setText(labelstring)
+
+
+def input_read():
+    while True:
+      x = input("enter reason:");
+      label_print(100,100,1,0xffffff,0x000000,x,2)
+
+def setup():
+    """Initialize the M5 device and configure UI components."""
+    global label1, image0, image1, rotary, rfid ,filler
+    M5.begin()
+    filler = 0x000000
+    Widgets.fillScreen(filler)
+    Widgets.setRotation(1)
+    
+    label1 = Widgets.Label("", 100, 123, 2, 0xffffff, 0x000000, Widgets.FONTS.DejaVu18)
+    image0 = Widgets.Image("res/img/mt.png", 63, 119)
+    image1 = Widgets.Image("res/img/yantra_logo1.png", 9, -1)
+    time.sleep(1)
+    Speaker.setVolumePercentage(1)
+    image0.setVisible(True)
+    image0.setImage("res/img/mt.png")
+    label1.setVisible(False)
+
+
+def loop():
+    """Main loop to continuously update the device."""
+    M5.update()
+    input_read()
+if __name__ == '__main__':
+    try:
+        setup()
+        while True:
+            loop()
+    except (Exception, KeyboardInterrupt) as e:
+        try:
+            from utility import print_error_msg
+            print_error_msg(e)
+        except ImportError:
+            print("Please update to the latest firmware")de
